@@ -14,7 +14,7 @@ Examples:
 """
 
 # Python package version
-__version__ = "5.46.1"
+__version__ = "5.46.2"
 
 # Git tag from https://github.com/file/file/tags to build
 FILE_GIT_TAG = "FILE5_46"
