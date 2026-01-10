@@ -1,6 +1,7 @@
 # Include the Cosmopolitan binary in source distributions
 include src/cosmo_file/data/file.com
 include src/cosmo_file/data/COPYING
+include src/cosmo_file/data/platform
 
 # Include license and readme
 include LICENSE
