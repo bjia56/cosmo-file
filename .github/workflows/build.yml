@@ -85,7 +85,7 @@ jobs:
 
           # Build a separate wheel for each platform
           mkdir -p dist/wheels
-          for platform in win_amd64 macosx_10_9_x86_64 macosx_11_0_arm64 linux_x86_64 linux_aarch64; do
+          for platform in win_amd64 macosx_10_9_x86_64 macosx_11_0_arm64 manylinux_2_17_x86_64 manylinux_2_17_aarch64; do
             python -m build --wheel
             WHEEL=$(ls dist/*.whl | head -n 1)
             mv "$WHEEL" "dist/wheels/cosmo_file-${VERSION}-py3-none-${platform}.whl"
