@@ -1,0 +1,18 @@
+# Include the Cosmopolitan binary in source distributions
+include src/cosmo_file/data/file.com
+include src/cosmo_file/data/COPYING
+
+# Include license and readme
+include LICENSE
+include README.md
+
+# Include build scripts
+recursive-include scripts *.sh
+
+# Exclude unnecessary files
+global-exclude __pycache__
+global-exclude *.py[cod]
+global-exclude .DS_Store
+prune build
+prune dist
+prune .git
