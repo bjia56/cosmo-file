@@ -14,11 +14,10 @@ Example:
     example.txt: ASCII text
 """
 
-import os
+import platform
 import subprocess
-import sys
 from pathlib import Path
-from typing import Union, Optional, List
+from typing import Union, Optional
 
 __version__ = "0.1.0"
 __all__ = ["run", "get_binary_path"]
@@ -75,12 +74,14 @@ def run(
 
         >>> result = cosmo_file.run('-', stdin=b'#!/bin/bash\\necho test')
         >>> print(result.stdout.decode())
-        -: Bourne-Again shell script text executable
+        /dev/stdin: Bourne-Again shell script, ASCII text executable
     """
     binary = get_binary_path()
 
     # Convert all args to strings
-    cmd = [str(binary)] + [str(arg) for arg in args]
+    cmd = (
+        [str(binary)] if platform.system() != "Linux" else ["sh", str(binary)]
+    ) + [str(arg) for arg in args]
 
     # Handle stdin
     stdin_input = None
