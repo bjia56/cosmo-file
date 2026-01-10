@@ -77,18 +77,26 @@ jobs:
 
       - name: Build wheels for all platforms
         run: |
-          # Build wheel for each platform
+          # Build base wheel
           python -m build --wheel
 
-          # Rename the wheel to include platform tags
+          # Create output directory
           mkdir -p dist/wheels
-          WHEEL_NAME=$(ls dist/*.whl | head -n 1 | xargs basename)
-          VERSION=$(echo $WHEEL_NAME | grep -oP '\d+\.\d+\.\d+')
 
-          # Create platform-specific wheels (same content, different tags)
+          # Get the base wheel name
+          BASE_WHEEL=$(ls dist/*.whl)
+
+          # Use wheel tool to properly retag for each platform
           for platform in win_amd64 macosx_10_9_x86_64 macosx_11_0_arm64 manylinux_2_17_x86_64 manylinux_2_17_aarch64; do
-            cp dist/*.whl "dist/wheels/cosmo_file-${VERSION}-py3-none-${platform}.whl"
+            wheel tags --platform-tag=${platform} --remove ${BASE_WHEEL}
+            mv ${BASE_WHEEL%.whl}-${platform}.whl dist/wheels/
+            # Rebuild base wheel for next iteration
+            python -m build --wheel
+            BASE_WHEEL=$(ls dist/*.whl)
           done
+
+          # Clean up leftover base wheel
+          rm -f dist/*.whl
 
           # List generated wheels
           ls -lh dist/wheels/
