@@ -55,7 +55,7 @@ for tool in cosmocc x86_64-unknown-cosmo-cc aarch64-unknown-cosmo-cc apelink; do
     fi
 done
 
-# Check for autoreconf, zip, git, make
+# Check for autoreconf, zip, git, make, patch
 if ! command -v autoreconf &> /dev/null; then
     echo "Error: autoreconf not found in PATH"
     echo "Please install autoconf package."
@@ -76,6 +76,11 @@ if ! command -v make &> /dev/null; then
     echo "Please install make."
     exit 1
 fi
+if ! command -v patch &> /dev/null; then
+    echo "Error: patch not found in PATH"
+    echo "Please install patch."
+    exit 1
+fi
 
 echo "Found toolchain:"
 echo "  cosmocc: $(which cosmocc)"
@@ -92,9 +97,24 @@ mkdir -p "${BUILD_DIR}"/{x86_64,aarch64,source}
 echo "Cloning file repository..."
 git clone --depth 1 --branch "${FILE_VERSION}" "${FILE_REPO}" "${BUILD_DIR}/source/file"
 
-# Run autoreconf once if needed
+# Apply patches if they exist for this version
 cd "${BUILD_DIR}/source/file"
+PATCH_DIR="${PROJECT_ROOT}/patches/${FILE_VERSION}"
+if [ -d "${PATCH_DIR}" ]; then
+    echo ""
+    echo "Applying patches for ${FILE_VERSION}..."
+    for patch in "${PATCH_DIR}"/*.patch; do
+        if [ -f "$patch" ]; then
+            echo "  Applying $(basename "$patch")..."
+            patch -p1 < "$patch"
+        fi
+    done
+    echo "Patches applied successfully"
+fi
+
+# Run autoreconf once if needed
 if [ ! -f configure ]; then
+    echo ""
     echo "Running autoreconf..."
     autoreconf -f -i
 fi
@@ -120,9 +140,7 @@ build_for_arch() {
     CXX="${cc_name%cc}++" \
     ./configure \
         --prefix="/zip" \
-        --disable-shared \
-        --enable-static \
-        --disable-dependency-tracking
+        --disable-shared
 
     # Build
     echo "Compiling for ${arch}..."

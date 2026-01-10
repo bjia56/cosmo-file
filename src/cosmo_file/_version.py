@@ -18,6 +18,3 @@ __version__ = "5.46.0"
 
 # Git tag from https://github.com/file/file/tags to build
 FILE_GIT_TAG = "FILE5_46"
-
-# Upstream file(1) version (for reference/documentation)
-FILE_VERSION = "5.46"
