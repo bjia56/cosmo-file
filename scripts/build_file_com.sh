@@ -23,9 +23,12 @@ OUTPUT_DIR="${PROJECT_ROOT}/src/cosmo_file/data"
 OUTPUT_BINARY="${OUTPUT_DIR}/file.com"
 OUTPUT_LICENSE="${OUTPUT_DIR}/COPYING"
 
+# Read file version from Python module
+# This ensures the build always uses the version defined in _version.py
+FILE_VERSION=$(python3 -c "import sys; sys.path.insert(0, '${PROJECT_ROOT}/src'); from cosmo_file._version import FILE_GIT_TAG; print(FILE_GIT_TAG)")
+
 # file repository details
 FILE_REPO="https://github.com/file/file.git"
-FILE_VERSION="${FILE_VERSION:-master}"  # Can be overridden via environment
 
 echo "================================================"
 echo "Building file.com with Cosmopolitan libc"

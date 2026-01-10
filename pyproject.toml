@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cosmo-file"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Cosmopolitan builds of file(1), distributed as a Python package"
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -44,3 +44,6 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 cosmo_file = ["data/file.com", "data/COPYING"]
+
+[tool.setuptools.dynamic]
+version = {attr = "cosmo_file.__version__"}
