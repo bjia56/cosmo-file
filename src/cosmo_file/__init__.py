@@ -42,6 +42,19 @@ def get_binary_path() -> Path:
     return binary_path
 
 
+def get_base_command() -> list[str]:
+    """Get the base command to execute the file.com binary.
+
+    Returns:
+        List of command components to execute the binary.
+    """
+    binary = get_binary_path()
+    if platform.system() == "Windows":
+        return [str(binary)]
+    else:
+        return ["sh", str(binary)]
+
+
 def run(
     *args: Union[str, Path],
     stdin: Optional[Union[str, bytes]] = None,
@@ -80,9 +93,7 @@ def run(
     binary = get_binary_path()
 
     # Convert all args to strings
-    cmd = (
-        [str(binary)] if platform.system() != "Linux" else ["sh", str(binary)]
-    ) + [str(arg) for arg in args]
+    cmd = get_base_command() + [str(arg) for arg in args]
 
     # Handle stdin
     stdin_input = None

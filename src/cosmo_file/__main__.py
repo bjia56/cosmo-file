@@ -6,8 +6,7 @@ directly to the file.com binary, streaming stdin/stdout/stderr transparently.
 
 import sys
 import subprocess
-import platform
-from . import get_binary_path
+from . import get_base_command
 
 
 def main():
@@ -19,25 +18,18 @@ def main():
     Returns:
         Exit code from the file command.
     """
-    try:
-        binary = get_binary_path()
-    except FileNotFoundError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        return 1
-
     # Execute the binary with all arguments, streaming I/O
     try:
         result = subprocess.run(
-            (
-                [str(binary)]
-                if platform.system() != "Linux"
-                else ["sh", str(binary)]
-            ) + sys.argv[1:],
+            get_base_command() + sys.argv[1:],
             stdin=sys.stdin.buffer if sys.stdin.isatty() else sys.stdin.buffer,
             stdout=sys.stdout.buffer,
             stderr=sys.stderr.buffer,
         )
         return result.returncode
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
     except KeyboardInterrupt:
         return 130  # Standard exit code for SIGINT
     except Exception as e:
