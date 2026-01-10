@@ -6,6 +6,7 @@ directly to the file.com binary, streaming stdin/stdout/stderr transparently.
 
 import sys
 import subprocess
+import platform
 from . import get_binary_path
 
 
@@ -27,7 +28,11 @@ def main():
     # Execute the binary with all arguments, streaming I/O
     try:
         result = subprocess.run(
-            [str(binary)] + sys.argv[1:],
+            (
+                [str(binary)]
+                if platform.system() != "Linux"
+                else ["sh", str(binary)]
+            ) + sys.argv[1:],
             stdin=sys.stdin.buffer if sys.stdin.isatty() else sys.stdin.buffer,
             stdout=sys.stdout.buffer,
             stderr=sys.stderr.buffer,
