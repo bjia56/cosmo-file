@@ -43,7 +43,7 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.setuptools.package-data]
-cosmo_file = ["data/file.com", "data/COPYING"]
+cosmo_file = ["data/file.*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "cosmo_file.__version__"}
