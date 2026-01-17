@@ -108,6 +108,7 @@ jobs:
 
           # Build x86_64 Linux wheel
           /tmp/assimilate -e -x -o src/cosmo_file/data/file.elf /tmp/file.com
+          chmod +x src/cosmo_file/data/file.elf
           echo "manylinux_2_17_x86_64" > src/cosmo_file/data/platform
           python -m build --wheel
           WHEEL=$(ls dist/*.whl | head -n 1)
@@ -115,6 +116,7 @@ jobs:
 
           # Build aarch64 Linux wheel
           /tmp/assimilate -e -a -o src/cosmo_file/data/file.elf /tmp/file.com
+          chmod +x src/cosmo_file/data/file.elf
           echo "manylinux_2_17_aarch64" > src/cosmo_file/data/platform
           python -m build --wheel
           WHEEL=$(ls dist/*.whl | head -n 1)
