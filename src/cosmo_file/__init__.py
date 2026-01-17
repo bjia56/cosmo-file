@@ -75,7 +75,11 @@ def get_base_command() -> list[str]:
     else:
         if platform.system() == "Linux":
             pledge = get_pledge_path()
-            return ["sh", str(pledge), str(binary)]
+            return [
+                "sh",
+                str(pledge), "-V", "-p", "stdio rpath",
+                str(binary),
+            ]
         return ["sh", str(binary)]
 
 
