@@ -75,6 +75,14 @@ jobs:
       - name: Install build tools
         run: pip install build wheel
 
+      - name: Download pledge and assimilate
+        run: |
+          wget https://cosmo.zip/pub/cosmos/v/4.0.2/bin/pledge -O /tmp/pledge
+          chmod +x /tmp/pledge
+
+          wget https://cosmo.zip/pub/cosmos/v/4.0.2/bin/assimilate -O /tmp/assimilate
+          chmod +x /tmp/assimilate
+
       - name: Build wheels for all platforms
         run: |
           # Build a wheel to extract version
@@ -85,12 +93,32 @@ jobs:
 
           # Build a separate wheel for each platform
           mkdir -p dist/wheels
-          for platform in win_amd64 macosx_10_9_x86_64 macosx_11_0_arm64 manylinux_2_17_x86_64 manylinux_2_17_aarch64; do
+          for platform in win_amd64 macosx_10_9_x86_64 macosx_11_0_arm64; do
             echo "$platform" > src/cosmo_file/data/platform
             python -m build --wheel
             WHEEL=$(ls dist/*.whl | head -n 1)
             mv "$WHEEL" "dist/wheels/cosmo_file-${VERSION}-py3-none-${platform}.whl"
           done
+
+          # Move APE binary out of workspace, we don't want it in the Linux wheels
+          mv src/cosmo_file/data/file.com /tmp/file.com
+
+          # Move pledge into data directory for Linux wheels
+          mv /tmp/pledge src/cosmo_file/data/pledge
+
+          # Build x86_64 Linux wheel
+          /tmp/assimilate -e -x -o src/cosmo_file/data/file.elf /tmp/file.com
+          echo "manylinux_2_17_x86_64" > src/cosmo_file/data/platform
+          python -m build --wheel
+          WHEEL=$(ls dist/*.whl | head -n 1)
+          mv "$WHEEL" "dist/wheels/cosmo_file-${VERSION}-py3-none-manylinux_2_17_x86_64.whl"
+
+          # Build aarch64 Linux wheel
+          /tmp/assimilate -e -a -o src/cosmo_file/data/file.elf /tmp/file.com
+          echo "manylinux_2_17_aarch64" > src/cosmo_file/data/platform
+          python -m build --wheel
+          WHEEL=$(ls dist/*.whl | head -n 1)
+          mv "$WHEEL" "dist/wheels/cosmo_file-${VERSION}-py3-none-manylinux_2_17_aarch64.whl"
 
           # List generated wheels
           ls -lh dist/wheels/

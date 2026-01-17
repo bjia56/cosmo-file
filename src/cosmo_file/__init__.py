@@ -21,7 +21,7 @@ from typing import Union, Optional
 
 from ._version import __version__
 
-__all__ = ["run", "get_binary_path"]
+__all__ = ["run"]
 
 
 def get_binary_path() -> Path:
@@ -33,13 +33,34 @@ def get_binary_path() -> Path:
     Raises:
         FileNotFoundError: If the binary cannot be found.
     """
-    binary_path = Path(__file__).parent / "data" / "file.com"
-    if not binary_path.exists():
-        raise FileNotFoundError(
-            f"file.com binary not found at {binary_path}. "
-            "The package may not be properly installed."
-        )
-    return binary_path
+    binary_path = Path(__file__).parent / "data" / ("file.com" if platform.system() != "Linux" else "file.elf")
+    if binary_path.exists():
+        return binary_path
+    raise FileNotFoundError(
+        f"file.com binary not found at {binary_path}. "
+        "The package may not be properly installed."
+    )
+
+
+def get_pledge_path() -> Path:
+    """Get the path to the pledge binary.
+
+    Returns:
+        Path object pointing to the pledge binary.
+
+    Raises:
+        FileNotFoundError: If the pledge binary cannot be found.
+    """
+    if platform.system() != "Linux":
+        raise FileNotFoundError("pledge binary is only available on Linux systems.")
+
+    pledge_path = Path(__file__).parent / "data" / "pledge"
+    if pledge_path.exists():
+        return pledge_path
+    raise FileNotFoundError(
+        f"pledge binary not found at {pledge_path}. "
+        "The package may not be properly installed."
+    )
 
 
 def get_base_command() -> list[str]:
@@ -52,6 +73,9 @@ def get_base_command() -> list[str]:
     if platform.system() == "Windows":
         return [str(binary)]
     else:
+        if platform.system() == "Linux":
+            pledge = get_pledge_path()
+            return ["sh", str(pledge), str(binary)]
         return ["sh", str(binary)]
 
 
@@ -90,8 +114,6 @@ def run(
         >>> print(result.stdout.decode())
         /dev/stdin: Bourne-Again shell script, ASCII text executable
     """
-    binary = get_binary_path()
-
     # Convert all args to strings
     cmd = get_base_command() + [str(arg) for arg in args]
 
