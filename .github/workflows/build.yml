@@ -98,6 +98,7 @@ jobs:
             python -m build --wheel
             WHEEL=$(ls dist/*.whl | head -n 1)
             mv "$WHEEL" "dist/wheels/cosmo_file-${VERSION}-py3-none-${platform}.whl"
+            rm -rf build
           done
 
           # Move APE binary out of workspace, we don't want it in the Linux wheels
@@ -115,6 +116,7 @@ jobs:
           python -m build --wheel
           WHEEL=$(ls dist/*.whl | head -n 1)
           mv "$WHEEL" "dist/wheels/cosmo_file-${VERSION}-py3-none-manylinux_2_17_x86_64.whl"
+          rm -rf build
 
           # Build aarch64 Linux wheel
           /tmp/assimilate -e -a -o src/cosmo_file/data/file.elf /tmp/file.com
@@ -123,6 +125,7 @@ jobs:
           python -m build --wheel
           WHEEL=$(ls dist/*.whl | head -n 1)
           mv "$WHEEL" "dist/wheels/cosmo_file-${VERSION}-py3-none-manylinux_2_17_aarch64.whl"
+          rm -rf build
 
           # List generated wheels
           ls -lh dist/wheels/
