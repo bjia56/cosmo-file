@@ -106,6 +106,8 @@ jobs:
           # Move pledge into data directory for Linux wheels
           mv /tmp/pledge src/cosmo_file/data/pledge
 
+          tree src/cosmo_file/data/
+
           # Build x86_64 Linux wheel
           /tmp/assimilate -e -x -o src/cosmo_file/data/file.elf /tmp/file.com
           chmod +x src/cosmo_file/data/file.elf
