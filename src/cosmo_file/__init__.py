@@ -63,8 +63,12 @@ def get_pledge_path() -> Path:
     )
 
 
-def get_base_command() -> list[str]:
+def get_base_command(pledge: bool = True) -> list[str]:
     """Get the base command to execute the file.com binary.
+
+    Args:
+        pledge: If True (default), use pledge sandboxing on Linux systems.
+                Has no effect on non-Linux systems.
 
     Returns:
         List of command components to execute the binary.
@@ -73,11 +77,11 @@ def get_base_command() -> list[str]:
     if platform.system() == "Windows":
         return [str(binary)]
     else:
-        if platform.system() == "Linux":
-            pledge = get_pledge_path()
+        if platform.system() == "Linux" and pledge:
+            pledge_binary = get_pledge_path()
             return [
                 "sh",
-                str(pledge), "-V", "-p", "stdio rpath",
+                str(pledge_binary), "-V", "-p", "stdio rpath",
                 str(binary),
             ]
         return ["sh", str(binary)]
@@ -88,6 +92,7 @@ def run(
     stdin: Optional[Union[str, bytes]] = None,
     capture_output: bool = True,
     check: bool = False,
+    pledge: bool = True,
     **kwargs
 ) -> subprocess.CompletedProcess:
     """Run the file command with the given arguments.
@@ -98,6 +103,8 @@ def run(
         capture_output: If True, capture stdout and stderr. If False, they go to
                        the parent process streams.
         check: If True, raise CalledProcessError if the command returns non-zero.
+        pledge: If True (default), use pledge sandboxing on Linux systems.
+                Has no effect on non-Linux systems.
         **kwargs: Additional keyword arguments to pass to subprocess.run().
 
     Returns:
@@ -119,7 +126,7 @@ def run(
         /dev/stdin: Bourne-Again shell script, ASCII text executable
     """
     # Convert all args to strings
-    cmd = get_base_command() + [str(arg) for arg in args]
+    cmd = get_base_command(pledge=pledge) + [str(arg) for arg in args]
 
     # Handle stdin
     stdin_input = None
