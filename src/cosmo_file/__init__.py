@@ -64,7 +64,7 @@ def get_pledge_path() -> Path:
 
 
 def get_base_command(pledge: bool = True) -> list[str]:
-    """Get the base command to execute the file.com binary.
+    """Get the base command to execute the file binary.
 
     Args:
         pledge: If True (default), use pledge sandboxing on Linux systems.
@@ -77,13 +77,16 @@ def get_base_command(pledge: bool = True) -> list[str]:
     if platform.system() == "Windows":
         return [str(binary)]
     else:
-        if platform.system() == "Linux" and pledge:
-            pledge_binary = get_pledge_path()
-            return [
-                "sh",
-                str(pledge_binary), "-V", "-p", "stdio rpath",
-                str(binary),
-            ]
+        if platform.system() == "Linux":
+            if pledge:
+                pledge_binary = get_pledge_path()
+                return [
+                    "sh",
+                    str(pledge_binary), "-V", "-p", "stdio rpath",
+                    str(binary),
+                ]
+            else:
+                return [str(binary)]
         return ["sh", str(binary)]
 
 
