@@ -14,6 +14,7 @@ Example:
     example.txt: ASCII text
 """
 
+import asyncio
 import platform
 import subprocess
 from pathlib import Path
@@ -21,7 +22,7 @@ from typing import Union, Optional
 
 from ._version import __version__
 
-__all__ = ["run"]
+__all__ = ["run", "run_async"]
 
 
 def get_binary_path() -> Path:
@@ -147,3 +148,57 @@ def run(
         check=check,
         **kwargs
     )
+
+
+async def run_async(
+    *args: Union[str, Path],
+    stdin: Optional[Union[str, bytes]] = None,
+    capture_output: bool = True,
+    check: bool = False,
+    pledge: bool = True,
+    **kwargs
+) -> subprocess.CompletedProcess:
+    """Async version of run(). Run the file command with the given arguments.
+
+    Args:
+        *args: Arguments to pass to the file command (e.g., file paths, options).
+        stdin: Optional input to pass to stdin (str or bytes).
+        capture_output: If True, capture stdout and stderr. If False, they go to
+                       the parent process streams.
+        check: If True, raise CalledProcessError if the command returns non-zero.
+        pledge: If True (default), use pledge sandboxing on Linux systems.
+                Has no effect on non-Linux systems.
+        **kwargs: Additional keyword arguments to pass to asyncio.create_subprocess_exec().
+
+    Returns:
+        CompletedProcess instance with returncode, stdout, stderr attributes.
+
+    Raises:
+        FileNotFoundError: If the file.com binary cannot be found.
+        subprocess.CalledProcessError: If check=True and command fails.
+    """
+    cmd = get_base_command(pledge=pledge) + [str(arg) for arg in args]
+
+    stdin_input = None
+    if stdin is not None:
+        if isinstance(stdin, str):
+            stdin_input = stdin.encode()
+        else:
+            stdin_input = stdin
+
+    stdout = asyncio.subprocess.PIPE if capture_output else None
+    stderr = asyncio.subprocess.PIPE if capture_output else None
+
+    proc = await asyncio.create_subprocess_exec(
+        *cmd,
+        stdin=asyncio.subprocess.PIPE if stdin_input is not None else None,
+        stdout=stdout,
+        stderr=stderr,
+        **kwargs
+    )
+    out, err = await proc.communicate(stdin_input)
+
+    completed = subprocess.CompletedProcess(cmd, proc.returncode, out, err)
+    if check:
+        completed.check_returncode()
+    return completed
