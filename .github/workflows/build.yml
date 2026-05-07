@@ -16,10 +16,10 @@ jobs:
     name: Build file.com
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Setup cosmocc
-        uses: bjia56/setup-cosmocc@v0.0.4
+        uses: bjia56/setup-cosmocc@c0097c34319baeca1b41cc857ec5c643f2f5baf6
         with:
           version: ${{ env.cosmocc_version }}
 
@@ -32,14 +32,14 @@ jobs:
         run: ./scripts/build_file_com.sh
 
       - name: Upload binary artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: file-binary
           path: src/cosmo_file/data/file.com
           if-no-files-found: error
 
       - name: Upload LICENSE artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: file-license
           path: src/cosmo_file/data/COPYING
@@ -50,10 +50,10 @@ jobs:
     needs: build-binary
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Download binary artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           name: file-binary
           path: src/cosmo_file/data/
@@ -62,13 +62,13 @@ jobs:
         run: chmod +x src/cosmo_file/data/file.com
 
       - name: Download LICENSE artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           name: file-license
           path: src/cosmo_file/data/
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: '3.11'
 
@@ -131,7 +131,7 @@ jobs:
           ls -lh dist/wheels/
 
       - name: Upload wheel artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: wheels
           path: dist/wheels/*.whl
